@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, session
 from flask_admin import Admin, AdminIndexView, expose
 from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap5 import Bootstrap
 from flask_babel import Babel
 from flask_admin.contrib.sqla import ModelView
+from flask_admin.base import BaseView, expose
 from models.user import User
 from models.playlist import PlayList
 from models.form import LoginForm
@@ -26,6 +27,9 @@ login_manager.session_protection = "strong"
 babel = Babel(app)
 
 Bootstrap(app)
+
+# Lista de canciones seleccionadas
+selected_songs = []
 
 
 @app.route('/login_view', methods=['GET', 'POST'])
@@ -59,7 +63,9 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     @login_required
     def index(self):
-        return super(MyAdminIndexView, self).index()
+        selected_songs = db.session.query(PlayList).filter_by(selected=True)
+
+        return self.render('admin/index.html', songs=selected_songs)
 
 # Vista personalizada de administración de PlayList
 class PlayListAdminView(ModelView):
@@ -82,7 +88,8 @@ def user():
 
 @app.route('/select/<int:song_id>', methods=['POST'])
 def select_song(song_id):
-    song = PlayList.query.get(song_id)
+    song = db.session.query(PlayList).filter_by(id=song_id, selected=False).first()
+    print(song)
     if song:
         song.selected = True
         db.session.commit()

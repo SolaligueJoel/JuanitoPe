@@ -2,4 +2,23 @@
 
 {% block body %}
 <h1>Admin Dashboard</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Autor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for song in songs %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ song.name }}</td>
+                <td>{{ song.author }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
