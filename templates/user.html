@@ -19,9 +19,9 @@
             </tr>
         </thead>
         <tbody>
-            {% for song in songs %}
+            {% for song in songs.items %}
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td>{{ song.id }}</td>
                     <td>{{ song.name }}</td>
                     <td>{{ song.author }}</td>
                     <td>
@@ -39,6 +39,17 @@
             {% endfor %}
         </tbody>
     </table>
+    {% for page in songs.iter_pages() %}
+      {% if page %}
+        {% if page != songs.page %}
+          <a href="{{ url_for('user', page_num=page) }}">{{ page }}</a>
+        {% else %}
+          <strong>{{ page }}</strong>
+        {% endif %}
+      {% else %}
+        <span class=ellipsis>…</span>
+      {% endif %}
+    {% endfor %}
     <a href="{{ url_for('admin_panel.index') }}">CONFIGURACION</a>
 
 </body>

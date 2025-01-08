@@ -1,5 +1,4 @@
-# models/playlist.py
-from config import db
+from configuracion.config import db
 
 class PlayList(db.Model):
     __tablename__ = "playlist"

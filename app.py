@@ -7,17 +7,28 @@ from flask_bootstrap5 import Bootstrap
 from flask_babel import Babel
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.base import BaseView, expose
+import os
 from models.user import User
 from models.playlist import PlayList
 from models.form import LoginForm
-from config import db
+from configuracion.config import db, Config
 
 
 # Configuración de la aplicación
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
+
+# Obtener la path de ejecución actual del script
+script_path = os.path.dirname(os.path.realpath(__file__))
+
+# Obtener los parámetros del archivo de configuración
+config_path_name = os.path.join(script_path ,'configuracion','config.ini')
+
+db_config = Config('db', config_path_name)
+server_config = Config('server', config_path_name)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_config['database']}"
 
 # Inicializar extensiones
 db.init_app(app)
@@ -81,9 +92,9 @@ admin = Admin(app, name='JuanitoPeApp', index_view=MyAdminIndexView(name='Panel 
 admin.add_view(PlayListAdminView(PlayList, db.session))
 
 # Rutas públicas
-@app.route('/')
-def user():
-    songs = PlayList.query.all()
+@app.route('/<int:page_num>')
+def user(page_num):
+    songs = PlayList.query.paginate(per_page=20, page=page_num,error_out=True)
     return render_template('user.html', songs=songs)
 
 @app.route('/select/<int:song_id>', methods=['POST'])
@@ -91,17 +102,24 @@ def select_song(song_id):
     song = db.session.query(PlayList).filter_by(id=song_id, selected=False).first()
     print(song)
     if song:
-        song.selected = True
-        db.session.commit()
-    return redirect(url_for('user'))
+        if(song.selected == False):
+            song.selected = True 
+            db.session.commit()
+        song_selected = PlayList.query.paginate()
+        song_selected_page = song_selected.page
+        print(song_selected_page)
+    return redirect(url_for('user', page_num=song_selected_page))
 
 @app.route('/deselect/<int:song_id>', methods=['POST'])
 def deselect_song(song_id):
     song = PlayList.query.get(song_id)
     if song:
-        song.selected = False
-        db.session.commit()
-    return redirect(url_for('user'))
+        if(son.selected == True):
+            song.selected = False
+            db.session.commit()
+        song_selected = PlayList.query.paginate()
+        song_selected_page = song_selected.page
+    return redirect(url_for('user', page_num=song_selected_page))
 
 # Inicializar la base de datos y datos de prueba
 with app.app_context():
@@ -123,13 +141,12 @@ with app.app_context():
         print('El usuario admin ya existe. No se creará de nuevo.')
 
     if not PlayList.query.first():
-        playlists = [
-            PlayList(name="Song 1", author="Author 1"),
-            PlayList(name="Song 2", author="Author 2"),
-            PlayList(name="Song 3", author="Author 3"),
-        ]
-        db.session.add_all(playlists)
+        for i in range(1,151):
+            playList = PlayList(name="Song" + str(i), author="Author" + str(i))
+            db.session.add(playList)
         db.session.commit()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host=server_config['host'],
+            port=server_config['port'],
+            debug=True)
