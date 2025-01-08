@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oyente</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+</head>
+<body>
+    <h1>CANCIONES A LA CARA</h1>
+    <h2>por JUANITO PÉ</h2>
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Canción</th>
+                <th>Autor</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for song in songs %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ song.name }}</td>
+                    <td>{{ song.author }}</td>
+                    <td>
+                        {% if song.selected %}
+                            <form method="POST" action="{{ url_for('deselect_song', song_id=song.id) }}" style="display:inline;">
+                            <button type="submit">Quitar</button>
+                            </form>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('select_song', song_id=song.id) }}" style="display:inline;">
+                                <button type="submit">Seleccionar</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('login') }}">CONFIGURACION</a>
+
+</body>
+</html>
