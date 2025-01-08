@@ -31,6 +31,8 @@ Bootstrap(app)
 @app.route('/login_view', methods=['GET', 'POST'])
 def login_view():
     form = LoginForm()
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_panel.index')) 
 
     if form.validate_on_submit():
         # Busca al usuario por su nombre de usuario
