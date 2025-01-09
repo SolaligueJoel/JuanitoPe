@@ -16,3 +16,4 @@ SQLAlchemy==1.4.23
 typing_extensions==4.12.2
 Werkzeug==2.0.1
 WTForms==3.1.2
+Flask-SocketIO==5.5.1

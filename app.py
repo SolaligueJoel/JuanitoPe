@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_admin import Admin, AdminIndexView, expose
 from flask_login import LoginManager, login_user, login_required, current_user
+from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash
 from flask_bootstrap5 import Bootstrap
 from flask_babel import Babel
@@ -16,6 +17,9 @@ from configuracion.config import db, Config
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
+
+# Inicializar Flask-SocketIO
+socketio = SocketIO(app)
 
 # Obtener la path de ejecución actual del script
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -117,25 +121,27 @@ def user(page_num):
 @app.route('/select/<int:song_id>', methods=['POST'])
 def select_song(song_id):
     song = db.session.query(PlayList).filter_by(id=song_id, selected=False).first()
-    print(song)
     if song:
-        if(song.selected == False):
+        if song.selected == False:
             song.selected = True
             db.session.commit()
-        song_selected = PlayList.query.paginate()
-        song_selected_page = song_selected.page
-        print(song_selected_page)
+            song_selected = PlayList.query.paginate()
+            song_selected_page = song_selected.page
+            # Emitir un evento para actualizar el admin
+            socketio.emit('song_selected', {'song_id': song.id, 'song_name': song.name, 'song_author': song.author})
     return redirect(url_for('user', page_num=song_selected_page))
 
 @app.route('/deselect/<int:song_id>', methods=['POST'])
 def deselect_song(song_id):
     song = PlayList.query.get(song_id)
     if song:
-        if(song.selected == True):
+        if song.selected == True:
             song.selected = False
             db.session.commit()
-        song_selected = PlayList.query.paginate()
-        song_selected_page = song_selected.page
+            # Emitir un evento para actualizar el admin
+            socketio.emit('song_deselected', {'song_id': song.id})
+            song_selected = PlayList.query.paginate()
+            song_selected_page = song_selected.page
     return redirect(url_for('user', page_num=song_selected_page))
 
 # Inicializar la base de datos y datos de prueba
@@ -158,6 +164,8 @@ with app.app_context():
         print('El usuario admin ya existe. No se creará de nuevo.')
 
 if __name__ == '__main__':
-    app.run(host=server_config['host'],
-            port=server_config['port'],
-            debug=True)
+    socketio.run(app, 
+        host=server_config['host'], 
+        port=server_config['port'],
+        debug=True)
+

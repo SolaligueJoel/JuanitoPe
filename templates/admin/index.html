@@ -8,17 +8,42 @@
             <th>#</th>
             <th>Nombre</th>
             <th>Autor</th>
+            <th>Género</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="song-list">
         {% for song in songs %}
-            <tr>
+            <tr id="song-{{ song.id }}">
                 <td>{{ loop.index }}</td>
                 <td>{{ song.name }}</td>
                 <td>{{ song.author }}</td>
+                <td>{{ song.genero.name }}</td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // Escuchar cuando una canción es seleccionada
+    socket.on('song_selected', function(data) {
+        // Si la canción no está ya en la lista, agregarla
+        let row = `<tr id="song-${data.song_id}">
+                    <td>${data.song_id}</td>
+                    <td>${data.song_name}</td>
+                    <td>${data.song_author}</td>
+                   </tr>`;
+        document.getElementById('song-list').innerHTML += row;
+    });
+
+    // Escuchar cuando una canción es deseleccionada
+    socket.on('song_deselected', function(data) {
+        var songRow = document.getElementById('song-' + data.song_id);
+        if (songRow) {
+            songRow.remove();
+        }
+    });
+</script>
 {% endblock %}

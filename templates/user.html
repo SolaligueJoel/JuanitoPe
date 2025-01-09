@@ -1,70 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oyente</title>
-    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+
+    <!-- Enlace al archivo CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Scripts necesarios para Bootstrap 5 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <h1>CANCIONES A LA CARTA</h1>
-    <h2>por JUANITO PÉ</h2>
-    <table class="styled-table">
-<thead>
-    <tr>
-        <th>#</th>
-        <th>Canción</th>
-        <th>Autor</th>
-        <th>
-            <form method="GET" action="{{ url_for('user', page_num=1) }}">
-                <select name="genero" onchange="this.form.submit()">
-                    <option value="">Todos</option>
-                    {% for genero in generos %}
-                        <option value="{{ genero.id }}" {% if request.args.get('genero') == genero.id|string %}selected{% endif %}>
-                            {{ genero.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </form>
-        </th>
-        <th>Acción</th>
-    </tr>
-</thead>
+    <div class="container mt-4">
+        <h1 class="text-center">CANCIONES A LA CARTA</h1>
+        <h2 class="text-center">por JUANITO PÉ</h2>
 
-        <tbody>
-            {% for song in songs.items %}
+        <table class="table table-striped mt-4">
+            <thead>
                 <tr>
-                    <td>{{ song.id }}</td>
-                    <td>{{ song.name }}</td>
-                    <td>{{ song.author }}</td>
-                    <td>{{ song.genero.name }}</td>
-                    <td>
-                        {% if song.selected %}
-                            <form method="POST" action="{{ url_for('deselect_song', song_id=song.id) }}" style="display:inline;">
-                            <button type="submit">Quitar</button>
-                            </form>
-                        {% else %}
-                            <form method="POST" action="{{ url_for('select_song', song_id=song.id) }}" style="display:inline;">
-                                <button type="submit">Seleccionar</button>
-                            </form>
-                        {% endif %}
-                    </td>
+                    <th>#</th>
+                    <th>Canción</th>
+                    <th>Autor</th>
+                    <th>
+                        <!-- Dropdown para filtrar géneros -->
+                        <div class="dropdown">
+                            <button class="dropdown-toggle" type="button" id="dropdownGenero" data-bs-toggle="dropdown" aria-expanded="false">
+                                Género
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownGenero">
+                                <!-- Campo de búsqueda dentro del dropdown -->
+                                <li class="px-3 py-2">
+                                    <input class="form-control" id="myInput" type="text" placeholder="Buscar..." onkeyup="filtrarGenero()">
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                {% for genero in generos %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('user', page_num=1, genero=genero.id) }}">
+                                            {{ genero.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </th>
+                    <th>Acción</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% for page in songs.iter_pages() %}
-      {% if page %}
-        {% if page != songs.page %}
-          <a href="{{ url_for('user', page_num=page) }}">{{ page }}</a>
-        {% else %}
-          <strong>{{ page }}</strong>
-        {% endif %}
-      {% else %}
-        <span class=ellipsis>…</span>
-      {% endif %}
-    {% endfor %}
-    <a href="{{ url_for('admin_panel.index') }}">CONFIGURACION</a>
+            </thead>
+            <tbody>
+                {% for song in songs.items %}
+                    <tr>
+                        <td>{{ song.id }}</td>
+                        <td>{{ song.name }}</td>
+                        <td>{{ song.author }}</td>
+                        <td>{{ song.genero.name }}</td>
+                        <td>
+                            {% if song.selected %}
+                                <form method="POST" action="{{ url_for('deselect_song', song_id=song.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Quitar</button>
+                                </form>
+                            {% else %}
+                                <form method="POST" action="{{ url_for('select_song', song_id=song.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Seleccionar</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
+        <!-- Paginación -->
+        <nav>
+            <ul class="pagination justify-content-center">
+                {% for page in songs.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {% if page == songs.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('user', page_num=page) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <a href="{{ url_for('admin_panel.index') }}" class="btn btn-link mt-3">CONFIGURACIÓN</a>
+    </div>
+
+    <!-- Script para filtrar géneros -->
+    <script>
+        function filtrarGenero() {
+            const input = document.getElementById('myInput');
+            const filter = input.value.toUpperCase();
+            const items = document.querySelectorAll('.dropdown-item');
+            items.forEach(item => {
+                const text = item.textContent || item.innerText;
+                item.style.display = text.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
