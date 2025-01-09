@@ -114,7 +114,7 @@ def select_song(song_id):
 def deselect_song(song_id):
     song = PlayList.query.get(song_id)
     if song:
-        if(son.selected == True):
+        if(song.selected == True):
             song.selected = False
             db.session.commit()
         song_selected = PlayList.query.paginate()
