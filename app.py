@@ -1,12 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_admin import Admin, AdminIndexView, expose
-from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_user, login_required, current_user
+from werkzeug.security import check_password_hash
 from flask_bootstrap5 import Bootstrap
 from flask_babel import Babel
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.base import BaseView, expose
 import os
 from models.user import User
 from models.playlist import PlayList
@@ -47,7 +45,7 @@ selected_songs = []
 def login_view():
     form = LoginForm()
     if current_user.is_authenticated:
-        return redirect(url_for('admin_panel.index')) 
+        return redirect(url_for('admin_panel.index'))
 
     if form.validate_on_submit():
         # Busca al usuario por su nombre de usuario
@@ -56,10 +54,10 @@ def login_view():
         if user and check_password_hash(user.password, form.password.data):  # Comparar el hash de la contraseña
             login_user(user, remember=form.remember.data)
             flash('Login exitoso.', 'success')
-            return redirect(url_for('admin_panel.index')) 
+            return redirect(url_for('admin_panel.index'))
         else:
             flash('Usuario o contraseña incorrectos.', 'danger')
-    
+
     return render_template('login.html', form=form) # Renderizamos el formulario de login
 
 # Cargar usuario en sesión
@@ -83,7 +81,7 @@ class PlayListAdminView(ModelView):
     def is_accessible(self):
         # Aseguramos que solo el admin logueado pueda acceder
         return current_user.is_authenticated and current_user.is_admin
-    
+
     def inaccessible_callback(self, name, **kwargs):
         # Redirige a la página de login si el usuario no tiene acceso
         return redirect(url_for('login_view'))
@@ -103,7 +101,7 @@ def select_song(song_id):
     print(song)
     if song:
         if(song.selected == False):
-            song.selected = True 
+            song.selected = True
             db.session.commit()
         song_selected = PlayList.query.paginate()
         song_selected_page = song_selected.page
@@ -132,7 +130,7 @@ with app.app_context():
         admin = User(username='admin')
         admin.set_password('admin_password')
         admin.is_admin = True
-        
+
         # Guardar el usuario en la base de datos
         db.session.add(admin)
         db.session.commit()
