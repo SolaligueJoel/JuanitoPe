@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_admin import Admin, AdminIndexView, expose
 from flask_login import LoginManager, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
@@ -7,7 +7,7 @@ from flask_babel import Babel
 from flask_admin.contrib.sqla import ModelView
 import os
 from models.user import User
-from models.playlist import PlayList
+from models.playlist import PlayList, Genero
 from models.form import LoginForm
 from configuracion.config import db, Config
 
@@ -85,15 +85,34 @@ class PlayListAdminView(ModelView):
     def inaccessible_callback(self, name, **kwargs):
         # Redirige a la página de login si el usuario no tiene acceso
         return redirect(url_for('login_view'))
+
+class GeneroView(ModelView):
+    form_columns = ["name"]
+
 # Inicializar Admin con un nombre de blueprint único
 admin = Admin(app, name='JuanitoPeApp', index_view=MyAdminIndexView(name='Panel de Control', endpoint='admin_panel'))
 admin.add_view(PlayListAdminView(PlayList, db.session))
+admin.add_view(GeneroView(Genero,db.session))
 
-# Rutas públicas
 @app.route('/<int:page_num>')
 def user(page_num):
-    songs = PlayList.query.paginate(per_page=20, page=page_num,error_out=True)
-    return render_template('user.html', songs=songs)
+    genero_id = request.args.get('genero')
+    
+    # Consulta básica
+    query = PlayList.query
+
+    # Aplicar filtro si se seleccionó un género
+    if genero_id:
+        query = query.filter_by(genero_id=genero_id)
+    
+    # Paginación
+    songs = query.paginate(per_page=20, page=page_num, error_out=True)
+
+    # Obtener todos los géneros para el filtro
+    generos = Genero.query.all()
+
+    return render_template('user.html', songs=songs, generos=generos)
+
 
 @app.route('/select/<int:song_id>', methods=['POST'])
 def select_song(song_id):
@@ -137,12 +156,6 @@ with app.app_context():
         print('Usuario admin creado con éxito!')
     else:
         print('El usuario admin ya existe. No se creará de nuevo.')
-
-    if not PlayList.query.first():
-        for i in range(1,151):
-            playList = PlayList(name="Song" + str(i), author="Author" + str(i))
-            db.session.add(playList)
-        db.session.commit()
 
 if __name__ == '__main__':
     app.run(host=server_config['host'],
