@@ -2,6 +2,8 @@ body {
     background-color: #f0e68c;
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 .container {
@@ -45,17 +47,17 @@ body {
     border: 0;
     border-radius: 0;
     background: #f1f1f1;
-  }
+}
 
 /* Estilo personalizado para el botón de Género */
 .dropdown-toggle {
-    background-color: white !important; /* Fondo blanco */
-    border: none !important;           /* Sin bordes */
-    color: black !important;           /* Color del texto */
-    font-weight: 700 !important;       /* Grosor de letra (bold) */
-    font-size: 16px;                   /* Ajusta el tamaño de letra si es necesario */
-    padding: 5px 10px;                 /* Espaciado interno */
-    box-shadow: none !important;       /* Sin sombra */
+    background-color: white !important;
+    border: none !important;
+    color: black !important;
+    font-weight: 700 !important;
+    font-size: 16px;
+    padding: 5px 10px;
+    box-shadow: none !important;
 }
 
 .dropdown-toggle:hover, .dropdown-toggle:focus {
@@ -63,7 +65,40 @@ body {
     color: black !important;
 }
 
-/* Ajuste de la flecha del dropdown */
 .dropdown-toggle::after {
-    color: black !important;            /* Color de la flecha hacia abajo */
+    color: black !important;
+}
+
+/* Centrar y hacer responsive la paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 10px;
+    margin: 20px auto;
+}
+
+.pagination .page-item {
+    margin: 0 5px;
+}
+
+.pagination .page-link {
+    color: #007bff;
+    text-decoration: none;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #ccc;
+    pointer-events: none;
+    background-color: #f8f9fa;
+    border-color: #ddd;
 }

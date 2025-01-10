@@ -110,7 +110,7 @@ def user(page_num):
         query = query.filter_by(genero_id=genero_id)
     
     # Paginación
-    songs = query.paginate(per_page=20, page=page_num, error_out=True)
+    songs = query.paginate(per_page=2, page=page_num, error_out=True)
 
     # Obtener todos los géneros para el filtro
     generos = Genero.query.all()
