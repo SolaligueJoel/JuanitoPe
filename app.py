@@ -1,11 +1,13 @@
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_admin import Admin, AdminIndexView, expose
+from flask_admin.menu import MenuLink
 from flask_login import LoginManager, login_user, login_required, current_user
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash
 from flask_bootstrap5 import Bootstrap
 from flask_babel import Babel
 from flask_admin.contrib.sqla import ModelView
+from datetime import datetime
 import os
 from models.user import User
 from models.playlist import PlayList, Genero
@@ -76,12 +78,13 @@ class MyAdminIndexView(AdminIndexView):
     @expose('/')
     @login_required
     def index(self):
-        selected_songs = db.session.query(PlayList).filter_by(selected=True)
+        selected_songs = db.session.query(PlayList).filter_by(selected=True).order_by(PlayList.selected_at.asc())  # Ordenar por fecha de selección
 
         return self.render('admin/index.html', songs=selected_songs)
 
 # Vista personalizada de administración de PlayList
 class PlayListAdminView(ModelView):
+    form_columns = ["genero","name", "author", "selected"]
     def is_accessible(self):
         # Aseguramos que solo el admin logueado pueda acceder
         return current_user.is_authenticated and current_user.is_admin
@@ -95,6 +98,7 @@ class GeneroView(ModelView):
 
 # Inicializar Admin con un nombre de blueprint único
 admin = Admin(app, name='JuanitoPeApp', index_view=MyAdminIndexView(name='Panel de Control', endpoint='admin_panel'))
+admin.add_link(MenuLink(name='Home', url='/1'))
 admin.add_view(PlayListAdminView(PlayList, db.session))
 admin.add_view(GeneroView(Genero,db.session))
 
@@ -124,6 +128,7 @@ def select_song(song_id):
     if song:
         if song.selected == False:
             song.selected = True
+            song.selected_at = datetime.utcnow()
             db.session.commit()
             song_selected = PlayList.query.paginate()
             song_selected_page = song_selected.page

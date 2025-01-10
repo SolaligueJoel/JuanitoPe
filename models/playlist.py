@@ -1,3 +1,4 @@
+from datetime import datetime
 from configuracion.config import db
 
 class PlayList(db.Model):
@@ -8,6 +9,7 @@ class PlayList(db.Model):
     selected = db.Column(db.Boolean, default=False)
     genero_id = db.Column(db.Integer, db.ForeignKey("genero.id"), nullable=False)
     genero = db.relationship("Genero", back_populates="playlist")
+    selected_at = db.Column(db.DateTime, default=None, nullable=True) 
 
     def __str__(self):
         return self.name
