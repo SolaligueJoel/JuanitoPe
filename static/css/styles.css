@@ -102,3 +102,57 @@ body {
     background-color: #f8f9fa;
     border-color: #ddd;
 }
+
+/* Asegura que el footer esté pegado al fondo */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+footer.bg-light {
+    height: 60px; /* Altura fija */
+    padding: 0; /* Sin espacio adicional */
+    background-color: #f8f9fa; /* Color gris claro */
+    display: flex; /* Uso de flexbox para el centrado */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
+}
+
+footer .row {
+    margin: 0; /* Elimina márgenes adicionales */
+    display: flex; /* Asegura el comportamiento flexible */
+    justify-content: space-around; /* Espaciado equitativo entre íconos */
+    width: 100%; /* Ocupa todo el ancho del footer */
+}
+
+footer .row a i {
+    font-size: 2rem; /* Tamaño reducido de los íconos */
+    transition: transform 0.3s ease; /* Transición para hover */
+}
+
+footer .row a i:hover {
+    transform: scale(1.1); /* Aumenta el tamaño al pasar el mouse */
+}
+
+@media (max-width: 768px) {
+    footer .row {
+        flex-direction: column; /* Los íconos se apilan en pantallas pequeñas */
+    }
+
+    footer .row a {
+        margin-bottom: 10px; /* Espaciado entre íconos */
+    }
+
+    footer .row a:last-child {
+        margin-bottom: 0; /* Sin margen en el último ícono */
+    }
+}
