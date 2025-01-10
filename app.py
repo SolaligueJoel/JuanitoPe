@@ -128,7 +128,7 @@ def select_song(song_id):
             song_selected = PlayList.query.paginate()
             song_selected_page = song_selected.page
             # Emitir un evento para actualizar el admin
-            socketio.emit('song_selected', {'song_id': song.id, 'song_name': song.name, 'song_author': song.author})
+            socketio.emit('song_selected', {'song_id': song.id, 'song_name': song.name, 'song_author': song.author, 'song_genero': song.genero.name})
     return redirect(url_for('user', page_num=song_selected_page))
 
 @app.route('/deselect/<int:song_id>', methods=['POST'])

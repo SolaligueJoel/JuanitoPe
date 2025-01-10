@@ -37,6 +37,7 @@
                                     <input class="form-control" id="myInput" type="text" placeholder="Buscar..." onkeyup="filtrarGenero()">
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('user', page_num=1, genero=Null) }}">Todos</a></li>
                                 {% for genero in generos %}
                                     <li>
                                         <a class="dropdown-item" href="{{ url_for('user', page_num=1, genero=genero.id) }}">
@@ -92,18 +93,7 @@
 
         <a href="{{ url_for('admin_panel.index') }}" class="btn btn-link mt-3">CONFIGURACIÓN</a>
     </div>
+    <script src="{{url_for('static', filename='js/filtroGenero.js')}}"></script>
 
-    <!-- Script para filtrar géneros -->
-    <script>
-        function filtrarGenero() {
-            const input = document.getElementById('myInput');
-            const filter = input.value.toUpperCase();
-            const items = document.querySelectorAll('.dropdown-item');
-            items.forEach(item => {
-                const text = item.textContent || item.innerText;
-                item.style.display = text.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
-            });
-        }
-    </script>
 </body>
 </html>
