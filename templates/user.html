@@ -53,7 +53,7 @@
             </thead>
             <tbody>
                 {% for song in songs.items %}
-                    <tr>
+                    <tr id="song-{{ song.id }}">
                         <td>{{ song.id }}</td>
                         <td>{{ song.name }}</td>
                         <td>{{ song.author }}</td>
@@ -111,6 +111,31 @@
         <a href="{{ url_for('admin_panel.index') }}" class="btn btn-link mt-3">CONFIGURACIÓN</a>
     </div>
     <script src="{{url_for('static', filename='js/filtroGenero.js')}}"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script>
+    const socket = io();
 
+    // Actualizar vista cuando una canción es seleccionada
+    socket.on('song_selected', (data) => {
+        const button = document.querySelector(`#song-${data.song_id} .btn-success`);
+        if (button) {
+            button.classList.remove('btn-success');
+            button.classList.add('btn-danger');
+            button.textContent = 'Quitar';
+            button.parentElement.action = `/deselect/${data.song_id}`;
+        }
+    });
+
+    // Actualizar vista cuando una canción es deseleccionada
+    socket.on('song_deselected', (data) => {
+        const button = document.querySelector(`#song-${data.song_id} .btn-danger`);
+        if (button) {
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-success');
+            button.textContent = 'Seleccionar';
+            button.parentElement.action = `/select/${data.song_id}`;
+        }
+    });
+</script>
 </body>
 </html>
