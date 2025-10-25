@@ -36,11 +36,48 @@ Proyecto servidor que expone endpoints REST y soporte en tiempo real con Flask-S
 
 ## Instalación y ejecución local
 
+1. Clonar el repositorio (fork o remoto)
+```sh
+# Clonar el repositorio (reemplace <REPO_URL> por la URL del repo o del fork)
+git clone <REPO_URL>
+cd JuanitoPe
+```
+
+2. Crear y activar un entorno virtual, instalar dependencias
 macOS / Linux
 ```sh
-cd /Users/joelsolaligue/Desktop/Proyectos/JuanitoPe
 python3 -m venv venv
 source venv/bin/activate
-pip install -r [requirements.txt](http://_vscodecontentref_/0)
-# (Opcional) revisar y ajustar [config.ini](http://_vscodecontentref_/1)
-python [app.py](http://_vscodecontentref_/2)
+pip install -r requirements.txt
+```
+
+Windows (PowerShell)
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+3. Revisar configuración
+- Editar configuracion/config.ini según el entorno (host, port, ruta de base de datos, modo debug).
+- `configuracion/config.py` inicializa la base de datos y crea el usuario administrador en el primer arranque; revise si necesita ajustes.
+
+4. Ejecutar la aplicación
+```sh
+python app.py
+```
+Luego abrir http://{host}:{port} con los valores establecidos en configuracion/config.ini.
+
+## Configuración
+- Archivo: `configuracion/config.ini`
+- Ajustes típicos: host, port, ruta de base de datos, modo debug.
+- Para producción ajuste variables de entorno y considere ejecutar detrás de un servidor WSGI o contenedor.
+
+## Notas de mantenimiento
+- Para añadir o actualizar dependencias: modificar `requirements.txt` y reinstalar en el entorno virtual.
+- Si se migra a otra base de datos, actualice `configuracion/config.py` y revise los modelos en `models/`.
+- No se incluye sistema de migraciones; considere Alembic para evolución de esquema.
+
+## Contacto
+Revisar el código en la raíz del proyecto para detalles adicionales y puntos de extensión.
+...existing code...
