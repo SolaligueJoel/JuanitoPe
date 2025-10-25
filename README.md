@@ -67,17 +67,3 @@ pip install -r requirements.txt
 python app.py
 ```
 Luego abrir http://{host}:{port} con los valores establecidos en configuracion/config.ini.
-
-## Configuración
-- Archivo: `configuracion/config.ini`
-- Ajustes típicos: host, port, ruta de base de datos, modo debug.
-- Para producción ajuste variables de entorno y considere ejecutar detrás de un servidor WSGI o contenedor.
-
-## Notas de mantenimiento
-- Para añadir o actualizar dependencias: modificar `requirements.txt` y reinstalar en el entorno virtual.
-- Si se migra a otra base de datos, actualice `configuracion/config.py` y revise los modelos en `models/`.
-- No se incluye sistema de migraciones; considere Alembic para evolución de esquema.
-
-## Contacto
-Revisar el código en la raíz del proyecto para detalles adicionales y puntos de extensión.
-...existing code...
